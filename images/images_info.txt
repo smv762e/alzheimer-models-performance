@@ -1,0 +1,3 @@
+**INFORMATION**
+
+This folder is initially empty. Place the images you want to analyze in this folder.

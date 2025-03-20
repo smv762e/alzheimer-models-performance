@@ -1,0 +1,6 @@
+images/*
+!images/images_info.txt
+models/*
+!models/models_info.txt
+reports/*
+!reports/reports_info.txt

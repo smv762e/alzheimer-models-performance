@@ -1,0 +1,3 @@
+**INFORMATION**
+
+This folder is initially empty. Place the models you want to use in this folder. 
