@@ -11,6 +11,26 @@ from sklearn.metrics import confusion_matrix
 import numpy as np
 from config import *
 
+# Modelos disponibles
+MODEL_OPTIONS = {
+    0: "InceptionV3",  1: "ResNet50",   2: "ResNet50V2",  3: "ResNet101",
+    4: "ResNet101V2",  5: "ResNet152",  6: "ResNet152V2",
+    7: "VGG16",        8: "VGG19",      9: "Xception"
+}
+
+# Función para solicitar un modelo válido
+def select_model_input():
+    while True:
+        try:
+            num = int(input("Enter an integer (0-9) to select a model: "))
+            if num in MODEL_OPTIONS:
+                print(f"✅ Selected Model: {MODEL_OPTIONS[num]}")
+                return num
+            else:
+                print("❌ Invalid selection. Please enter a number between 0 and 9.")
+        except ValueError:
+            print("❌ Invalid input. Please enter an integer.")
+            
 # TRAINING
 def select_model(num): 
     model_list = [InceptionV3, ResNet50, ResNet50V2, ResNet101, ResNet101V2, ResNet152, ResNet152V2, VGG16, VGG19, Xception]

@@ -1,82 +1,96 @@
 # type: ignore
 import os
 import sys
-from config import IMAGES_DIRECTORY, MODELS_DIRECTORY
+import numpy as np
+from datetime import datetime
 from tensorflow.keras.models import load_model
+from sklearn.metrics import classification_report, accuracy_score
+from config import IMAGES_DIRECTORY, MODELS_DIRECTORY
 from src.data_utils import create_dataframes, create_image_generators
 from src.log_utils import Tee
 from src.model_utils import confusion
-from sklearn.metrics import classification_report, accuracy_score
-import numpy as np
-from datetime import datetime
 
 # ***
 import tkinter as tk
-from tkinter.filedialog import *
+from tkinter.filedialog import askdirectory, askopenfilename
+
+# Ocultar ventana principal de Tkinter
 tk.Tk().withdraw()
 
-images_set = askdirectory(
-    initialdir=IMAGES_DIRECTORY,
-    title="Select an images set"    
-)
-if images_set:
-    print("Directory selected: " + images_set)
-else:
-    print("No directory selected.")
+# Seleccionar el conjunto de imágenes
+images_set = askdirectory(initialdir=IMAGES_DIRECTORY, title="Select an images set")
+if not images_set:
+    print("❌ No directory selected. Exiting...")
     sys.exit()
-# ***
 
+print(f"📂 Directory selected: {images_set}")
+
+# Seleccionar el modelo
+model_path = askopenfilename(
+    initialdir=MODELS_DIRECTORY,
+    title="Select a .keras model",
+    filetypes=[("Keras Model Files", "*.keras")]
+)
+if not model_path:
+    print("❌ No model selected. Exiting...")
+    sys.exit()
+
+print(f"📄 Model selected: {model_path}")
+
+# Formatear la fecha
 DATE = datetime.now().strftime("%Y-%m-%d_%H-%M")
 
 def main():
-    # Create dataframe/subdirectory
+    # Crear dataframe
     test_df = create_dataframes(images_set)
-    
     test_gen = create_image_generators(test_df)
 
-    # Load model
-    model_path = askopenfilename(
-        initialdir=MODELS_DIRECTORY,
-        title="Select a .keras model",
-        filetypes=[("Keras Model Files", "*.keras")]
-    )
-    if model_path:
-        print("File selected: " + model_path)
-    else:
-        print("No file selected.")
+    # Cargar modelo
+    try:
+        model = load_model(model_path)
+    except Exception as e:
+        print(f"❌ Error loading model: {e}")
         sys.exit()
 
-    model = load_model(model_path)
     model_name = os.path.splitext(os.path.basename(model_path))[0]
     model_og = os.path.basename(model_path).split('.')[0]
-
     model_directory = os.path.join(MODELS_DIRECTORY, model_og)
     test_directory = os.path.join(model_directory, "test", DATE)
-    os.makedirs(test_directory, exist_ok=True) #models/model_name/date/test/date/
+
+    # Crear directorio de pruebas
+    os.makedirs(test_directory, exist_ok=True)
 
     log_path = os.path.join(test_directory, "testing_log.txt")
-    with open(log_path, "w") as log_file:
+    with open(log_path, "w", encoding="utf-8") as log_file:
         sys.stdout = Tee(log_file)
-    
-        print("\nLabels Distribution:")
+
+        print("\n📊 Labels Distribution:")
         print(test_df["classes"].value_counts())
-        
-        print("Evaluating model on test data...")
+
+        print("\n🔍 Evaluating model on test data...")
         _, test_acc = model.evaluate(test_gen, verbose=1)
-        print(f"Test Accuracy: {test_acc * 100:.2f}%")
+        print(f"✅ Test Accuracy: {test_acc * 100:.2f}%")
 
+        # Obtener predicciones
         pred = model.predict(test_gen)
-        pred = np.argmax(pred, axis=1) #pick class with highest  probability
+        if pred.ndim > 1:  # Si es una matriz de probabilidades
+            pred = np.argmax(pred, axis=1)
 
-        labels = (test_gen.class_indices)
-        labels = dict((v,k) for k,v in labels.items())
-        pred2 = [labels[k] for k in pred]
+        # Convertir índices en etiquetas
+        labels = {v: k for k, v in test_gen.class_indices.items()}
+        pred_labels = [labels[idx] for idx in pred]
 
-        y_test = test_df.classes # set y_test to the expected output
-        print(classification_report(y_test, pred2))
-        print("Accuracy of the Model:","{:.1f}%".format(accuracy_score(y_test, pred2)*100))
+        # Convertir y_test a lista
+        y_test = test_df["classes"].tolist()
 
-        confusion(test_gen, y_test, pred2, model_name, test_directory)
+        # Reporte de clasificación
+        print("\n📜 Classification Report:")
+        print(classification_report(y_test, pred_labels))
+
+        print("\n🎯 Accuracy of the Model:", "{:.1f}%".format(accuracy_score(y_test, pred_labels) * 100))
+
+        # Generar matriz de confusión
+        confusion(test_gen, y_test, pred_labels, model_name, test_directory)
 
     sys.stdout = sys.__stdout__
 

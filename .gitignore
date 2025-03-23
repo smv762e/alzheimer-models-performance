@@ -4,3 +4,4 @@ models/*
 !models/models_info.txt
 reports/*
 !reports/reports_info.txt
+__pycache__/
