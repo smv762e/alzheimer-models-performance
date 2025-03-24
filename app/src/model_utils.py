@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
 import numpy as np
-from config import *
+from config import EXP_NAME
 
 # Modelos disponibles
 MODEL_OPTIONS = {

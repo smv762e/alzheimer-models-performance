@@ -22,10 +22,10 @@ def select_images_directory():
     images_set = askdirectory(initialdir=IMAGES_DIRECTORY, title="Select an images set")
     
     if not images_set:
-        print("No directory selected. Exiting...")
+        print("❌ No directory selected. Exiting...")
         sys.exit()
     
-    print(f"✅ Directory selected: {images_set}")
+    print(f"📂 Directory selected: {images_set}")
     return images_set
 
 # -------------------------------

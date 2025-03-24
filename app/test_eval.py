@@ -3,44 +3,55 @@ import os
 import sys
 import numpy as np
 from datetime import datetime
+import tkinter as tk
+from tkinter.filedialog import askdirectory, askopenfilename
 from tensorflow.keras.models import load_model
 from sklearn.metrics import classification_report, accuracy_score
+
+# Importar configuraciones
 from config import IMAGES_DIRECTORY, MODELS_DIRECTORY
+
+# Importar módulos propios
 from src.data_utils import create_dataframes, create_image_generators
 from src.log_utils import Tee
 from src.model_utils import confusion
 
-# ***
-import tkinter as tk
-from tkinter.filedialog import askdirectory, askopenfilename
+# -------------------------------
+# 📌 Función para seleccionar directorio de imágenes
+# -------------------------------
+def select_images_directory():
+    tk.Tk().withdraw()  # Ocultar ventana principal de Tkinter
+    images_set = askdirectory(initialdir=IMAGES_DIRECTORY, title="Select an images set")
+    
+    if not images_set:
+        print("❌ No directory selected. Exiting...")
+        sys.exit()
+    
+    print(f"📂 Directory selected: {images_set}")
+    return images_set
 
-# Ocultar ventana principal de Tkinter
-tk.Tk().withdraw()
+# -------------------------------
+# 📌 Función para obtener ruta del modelo entrenado 
+# -------------------------------
+def select_model_directory():
+    tk.Tk().withdraw()  # Ocultar ventana principal de Tkinter
+    model_path = askopenfilename(initialdir=MODELS_DIRECTORY, title="Select a .keras model", filetypes=[("Keras Model Files", "*.keras")])
+    
+    if not model_path:
+        print("❌ No model selected. Exiting...")
+        sys.exit()
+    
+    print(f"📄 Model selected: {model_path}")
+    return model_path
 
-# Seleccionar el conjunto de imágenes
-images_set = askdirectory(initialdir=IMAGES_DIRECTORY, title="Select an images set")
-if not images_set:
-    print("❌ No directory selected. Exiting...")
-    sys.exit()
-
-print(f"📂 Directory selected: {images_set}")
-
-# Seleccionar el modelo
-model_path = askopenfilename(
-    initialdir=MODELS_DIRECTORY,
-    title="Select a .keras model",
-    filetypes=[("Keras Model Files", "*.keras")]
-)
-if not model_path:
-    print("❌ No model selected. Exiting...")
-    sys.exit()
-
-print(f"📄 Model selected: {model_path}")
-
-# Formatear la fecha
-DATE = datetime.now().strftime("%Y-%m-%d_%H-%M")
-
+# -------------------------------
+# 📌 Función principal
+# -------------------------------
 def main():
+    model_path = select_model_directory()
+    images_set = select_images_directory()
+    date_str = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    
     # Crear dataframe
     test_df = create_dataframes(images_set)
     test_gen = create_image_generators(test_df)
@@ -55,7 +66,7 @@ def main():
     model_name = os.path.splitext(os.path.basename(model_path))[0]
     model_og = os.path.basename(model_path).split('.')[0]
     model_directory = os.path.join(MODELS_DIRECTORY, model_og)
-    test_directory = os.path.join(model_directory, "test", DATE)
+    test_directory = os.path.join(model_directory, "test", date_str)
 
     # Crear directorio de pruebas
     os.makedirs(test_directory, exist_ok=True)
