@@ -7,7 +7,7 @@ import tkinter as tk
 from tkinter.filedialog import askdirectory
 
 # Importar configuraciones
-from config import IMAGES_DIRECTORY, MODELS_DIRECTORY, IMG_SHAPE, NUM_EPOCHS, EXP_NAME
+from config import IMAGES_DIRECTORY, MODELS_DIRECTORY, NUM_EPOCHS
 
 # Importar módulos propios
 from src.data_utils import create_dataframes, split_data, create_image_generators
@@ -32,7 +32,7 @@ def select_images_directory():
 # 📌 Función principal
 # -------------------------------
 def main():
-    NUM = select_model_input()
+    num = select_model_input()
     images_set = select_images_directory()
     date_str = datetime.now().strftime("%Y-%m-%d_%H-%M")
 
@@ -50,8 +50,8 @@ def main():
         test_gen = create_image_generators(test_df)
 
         # Construir modelo
-        model = build_model(NUM, IMG_SHAPE, num_classes)
-        _, model_name = select_model(NUM)
+        model = build_model(num, num_classes)
+        _, model_name = select_model(num)
 
         # Crear directorio para guardar el modelo
         model_directory = os.path.join(MODELS_DIRECTORY, model_name, date_str)
@@ -75,7 +75,7 @@ def main():
             history_df.to_csv(os.path.join(model_directory, 'training_history.csv'), index=False)
 
             # Graficar historial
-            plot_training_history(history, model_name, model_directory, EXP_NAME)
+            plot_training_history(history, model_name, model_directory)
 
             # Evaluación final del modelo
             print("🔍 Evaluating model on test data...")

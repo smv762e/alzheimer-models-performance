@@ -9,7 +9,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
 import numpy as np
-from config import EXP_NAME
+
+# Importar configuraciones
+from config import EXP_NAME, IMG_SHAPE
 
 # Modelos disponibles
 MODEL_OPTIONS = {
@@ -38,7 +40,7 @@ def select_model(num):
     model_name = mod.__name__
     return mod, model_name
 
-def build_model(num, input_shape, num_classes):
+def build_model(num, num_classes):
     base_model, _ = select_model(num)
 
     if num in (0, 1, 2, 3, 4, 5, 6, 9): # normal config
@@ -46,7 +48,7 @@ def build_model(num, input_shape, num_classes):
     if num in (7, 8): # VGG config
         autoPooling = 'max'
 
-    base_model = base_model(include_top=False, weights="imagenet", input_shape=input_shape, pooling=autoPooling)
+    base_model = base_model(include_top=False, weights="imagenet", input_shape=IMG_SHAPE, pooling=autoPooling)
     x = base_model.output
     predictions = Dense(num_classes, activation='softmax')(x)
     model = Model(inputs=base_model.input, outputs=predictions)
@@ -63,7 +65,7 @@ def create_callbacks(model_name, model_directory):
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, verbose=1, mode='min', min_lr=0.0001)
     return [model_checkpoint_callback, training_stop, reduce_lr]
 
-def plot_training_history(history, model_name, plot_save_directory, exp_name):
+def plot_training_history(history, model_name, plot_save_directory):
     plt.figure(figsize=(12, 6))
     plt.subplot(1, 2, 1)
     plt.plot(history.history['accuracy'])
@@ -82,7 +84,7 @@ def plot_training_history(history, model_name, plot_save_directory, exp_name):
     plt.legend(['train', 'val'], loc='upper left')
 
     plt.tight_layout()
-    plt.savefig(os.path.join(plot_save_directory, f'{model_name}_{exp_name}_training_history.png'))
+    plt.savefig(os.path.join(plot_save_directory, f'{model_name}_{EXP_NAME}_training_history.png'))
 
 # TEST
 def confusion(test, y_test, pred2, model_name, plot_save_directory):
