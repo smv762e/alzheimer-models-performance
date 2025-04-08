@@ -5,3 +5,4 @@ models/*
 reports/*
 !reports/reports_info.txt
 __pycache__/
+.gradio/*

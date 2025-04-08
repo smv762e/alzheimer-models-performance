@@ -59,15 +59,22 @@ def main():
 
         # Configurar redirección de salida
         log_path = os.path.join(model_directory, "training_log.txt")
-        with open(log_path, "w", encoding="utf-8") as log_file:
+        summary_path = os.path.join(model_directory, "model_summary.txt")
+
+        with open(log_path, "w", encoding="utf-8") as log_file, \
+            open(summary_path, "w", encoding="utf-8") as summary_file:
+
             sys.stdout = Tee(log_file)
 
             print("\n📊 Labels Distribution:")
             print(data_df["classes"].value_counts())
-            model.summary()
+
+            # Guardar resumen del modelo en archivo separado
+            model.summary(print_fn=lambda x: summary_file.write(x + "\n"))
 
             # Crear callbacks y entrenar modelo
             callbacks = create_callbacks(model_name, model_directory)
+            print("\n💡 Training in progress...")
             history = model.fit(train_gen, epochs=NUM_EPOCHS, validation_data=val_gen, callbacks=callbacks)
 
             # Guardar historial de entrenamiento
