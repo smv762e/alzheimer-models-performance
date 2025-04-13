@@ -31,7 +31,7 @@ def select_images_directory():
 # -------------------------------
 # 📌 Función principal
 # -------------------------------
-def main():
+def train_val():
     num = select_model_input()
     images_set = select_images_directory()
     date_str = datetime.now().strftime("%Y-%m-%d_%H-%M")
@@ -100,4 +100,4 @@ def main():
 # 📌 Punto de entrada del script
 # -------------------------------
 if __name__ == "__main__":
-    main()
+    train_val()
