@@ -46,6 +46,7 @@ def main():
 
         # Crear generadores de imágenes
         train_gen = create_image_generators(train_df)
+        print(train_gen.class_indices)
         val_gen = create_image_generators(val_df)
         test_gen = create_image_generators(test_df)
 

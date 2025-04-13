@@ -1,4 +1,5 @@
 # type: ignore
+import sys
 import gradio as gr
 import numpy as np
 from tensorflow.keras.models import load_model
@@ -7,7 +8,7 @@ import tkinter as tk
 from tkinter.filedialog import askopenfilename
 
 # Importar configuraciones
-from config import MODELS_DIRECTORY
+from config import MODELS_DIRECTORY, IMG_SHAPE
 
 # -------------------------------
 # 📌 Función para obtener ruta del modelo entrenado 
@@ -26,7 +27,7 @@ def select_model_directory():
 # Función de predicción
 def predict(img):
     # Preprocesar la imagen como lo hacías en entrenamiento
-    img = img.resize((256,256))  # Ajustar al tamaño usado por el modelo
+    img = img.resize((IMG_SHAPE[0],IMG_SHAPE[1]))
     img_array = image.img_to_array(img)
     img_array = np.expand_dims(img_array, axis=0)
     img_array = img_array / 255.0  # Normalizar si aplicaba
@@ -40,7 +41,7 @@ def predict(img):
     return {label: float(p) for label, p in zip(class_names, preds)}
 
 # Cargar clases
-class_names = ['MildDemented', 'ModerateDemented', 'NonDemented', 'VeryMildDemented']
+class_names = ['Mild Demented', 'Moderate Demented', 'Non Demented', 'Very Mild Demented']
 
 model_path = select_model_directory()
 
@@ -54,7 +55,7 @@ except Exception as e:
 # Crear interfaz de Gradio
 interface = gr.Interface(
     fn=predict,
-    inputs=gr.Image(type="pil"),
+    inputs=gr.Image(sources="upload", type="pil"),
     outputs=gr.JSON(),
     title="🧠 Alzheimer Prediction",
     description="Carga una imagen de resonancia y el modelo predice la etapa."
