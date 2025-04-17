@@ -4,39 +4,43 @@ import sys
 from datetime import datetime
 import pandas as pd
 
-# Importar módulos propios
+# Import custom modules
 from src.data_utils import create_dataframes, split_data, create_image_generators
 from src.log_utils import Tee
-from src.model_utils import select_model_input, select_model, build_model, create_callbacks, plot_training_history
+from src.model_utils import select_model_by_name, build_model, create_callbacks, plot_training_history
 
-def train_val_func(images_set, mod, num_epochs, img_shape, exp_name):
-    num = select_model_input()
-    images_set = select_images_directory()
-    date_str = datetime.now().strftime("%Y-%m-%d_%H-%M")
+# Import configurations
+from config import MODELS_DIRECTORY
+
+def train_val_func(images_set, mod, num_epochs):
+    final_msg = "⚠️ An error occurred during training."
+    image_path = None
 
     try:
-        # Crear DataFrame con las imágenes
+        date_str = datetime.now().strftime("%Y-%m-%d_%H-%M")
+
+        # Create DataFrame with images
         data_df = create_dataframes(images_set)
         num_classes = data_df['classes'].nunique()
 
-        # Dividir en train, val y test
+        # Split into train, validation, and test
         train_df, val_df, test_df = split_data(data_df)
 
-        # Crear generadores de imágenes
+        # Create image generators
         train_gen = create_image_generators(train_df)
         print(train_gen.class_indices)
         val_gen = create_image_generators(val_df)
         test_gen = create_image_generators(test_df)
 
-        # Construir modelo
-        model = build_model(num, num_classes)
-        _, model_name = select_model(num)
+        # Build model
+        model_fn, model_name = select_model_by_name(mod)
+        model = build_model(model_fn, num_classes)
 
-        # Crear directorio para guardar el modelo
+        # Create directory to save the model
         model_directory = os.path.join(MODELS_DIRECTORY, model_name, date_str)
         os.makedirs(model_directory, exist_ok=True)
 
-        # Configurar redirección de salida
+        # Configure output redirection
         log_path = os.path.join(model_directory, "training_log.txt")
         summary_path = os.path.join(model_directory, "model_summary.txt")
 
@@ -48,28 +52,35 @@ def train_val_func(images_set, mod, num_epochs, img_shape, exp_name):
             print("\n📊 Labels Distribution:")
             print(data_df["classes"].value_counts())
 
-            # Guardar resumen del modelo en archivo separado
+            # Save model summary to a separate file
             model.summary(print_fn=lambda x: summary_file.write(x + "\n"))
 
-            # Crear callbacks y entrenar modelo
+            # Create callbacks and train the model
             callbacks = create_callbacks(model_name, model_directory)
             print("\n💡 Training in progress...")
-            history = model.fit(train_gen, epochs=NUM_EPOCHS, validation_data=val_gen, callbacks=callbacks)
+            history = model.fit(train_gen, epochs=num_epochs, validation_data=val_gen, callbacks=callbacks)
 
-            # Guardar historial de entrenamiento
+            # Save training history
             history_df = pd.DataFrame(history.history)
             history_df.to_csv(os.path.join(model_directory, 'training_history.csv'), index=False)
 
-            # Graficar historial
-            plot_training_history(history, model_name, model_directory)
+            # Plot training history
+            image_path = plot_training_history(history, model_name, model_directory)
 
-            # Evaluación final del modelo
+            # Final model evaluation
             print("🔍 Evaluating model on test data...")
             _, test_acc = model.evaluate(test_gen, verbose=1)
-            print(f"✅ Test Accuracy: {test_acc * 100:.2f}%")
+            print(f"🎯 Test Accuracy: {test_acc * 100:.2f}%")
 
+            final_msg = (
+                "✅ Training and validation completed.\n"
+                "📊 Labels Distribution:\n"
+                f"{data_df['classes'].value_counts().to_string()}\n"
+                f"🎯 Test Accuracy: {test_acc * 100:.2f}%"
+            )
     except Exception as e:
         print(f"❌ Error during execution: {e}")
 
     finally:
-        sys.stdout = sys.__stdout__  # Restaurar la salida estándar
+        sys.stdout = sys.__stdout__
+        return final_msg, image_path
