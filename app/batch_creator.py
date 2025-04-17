@@ -1,46 +1,23 @@
 # type: ignore
 import os
-import sys
 import shutil
 import random
-import tkinter as tk
-from tkinter.filedialog import askdirectory
+import gradio as gr
 
-# Ocultar la ventana principal de Tkinter
-tk.Tk().withdraw()
+def batch_creator_func(images_set, set_name, set_size):
+    # Validaciones básicas
+    if not images_set or not os.path.isdir(images_set):
+        raise gr.Error("❌ Directorio no válido")
 
-# Obtener directorio base del usuario
-home_dir = os.path.expanduser("~")
+    if not set_name:
+        raise gr.Error("❌ Nombre del conjunto no puede estar vacío")
 
-# Seleccionar el conjunto de imágenes
-images_set = askdirectory(initialdir=home_dir, title="Select an images set")
-if not images_set:
-    print("❌ No directory selected. Exiting...")
-    sys.exit()
+    # Validar caracteres inválidos en nombre
+    invalid_chars = r'\/:*?"<>|'
+    if any(c in set_name for c in invalid_chars):
+        raise gr.Error("❌ Nombre inválido. Evita usar / \\ : * ? \" < > |")
 
-print(f"📂 Directory selected: {images_set}")
-
-# Solicitar nombre del nuevo conjunto
-file_name = input("Enter name for new set: ").strip()
-if not file_name:
-    print("❌ No name selected. Exiting...")
-    sys.exit()
-
-# Asegurar que el nombre no contenga caracteres inválidos
-invalid_chars = r'\/:*?"<>|'
-if any(c in file_name for c in invalid_chars):
-    print("❌ Invalid name. Avoid using special characters: / \\ : * ? \" < > |")
-    sys.exit()
-
-# Definir directorio de salida de forma segura
-output_dir = os.path.join("images", file_name)
-
-# Solicitar el tamaño del conjunto por clase
-set_size = input("Enter size for classes set (empty for automatic size): ").strip()
-random.seed(42)  # Para reproducibilidad
-
-def main():
-    # Obtener imágenes por clase
+    random.seed(42)
     class_images = {
         cls: os.listdir(os.path.join(images_set, cls))
         for cls in os.listdir(images_set)
@@ -48,27 +25,18 @@ def main():
     }
 
     if not class_images:
-        print("❌ No valid class directories found. Exiting...")
-        sys.exit()
+        raise gr.Error("❌ No se encontraron carpetas de clases")
 
-    # Determinar el número mínimo de imágenes por clase
     min_count = min(len(imgs) for imgs in class_images.values() if imgs)
-
     if min_count == 0:
-        print("❌ Some class folders are empty. Exiting...")
-        sys.exit()
+        raise gr.Error("❌ Alguna carpeta está vacía")
 
-    # Determinar el tamaño final del conjunto
-    try:
-        set_size_value = int(set_size) if set_size.isdigit() else min_count
-    except ValueError:
-        print("❌ Invalid input for set size. Exiting...")
-        sys.exit()
+    set_size_value = int(set_size) if set_size and int(set_size) > 0 else min_count
 
-    # Crear directorio de salida
+    # Crear carpeta destino
+    output_dir = os.path.join("images", set_name)
     os.makedirs(output_dir, exist_ok=True)
 
-    # Copiar imágenes
     for cls, imgs in class_images.items():
         class_output_path = os.path.join(output_dir, cls)
         os.makedirs(class_output_path, exist_ok=True)
@@ -82,9 +50,12 @@ def main():
             try:
                 shutil.copy(src, dst)
             except Exception as e:
-                print(f"⚠️ Error copying {img}: {e}")
+                raise gr.Error("❌ Error copying {img}: {e}")
 
-    print(f"✅ New balanced set created at {output_dir} with {set_size_value} images/class")
+    clases = ", ".join(class_images.keys())
 
-if __name__ == "__main__":
-    main()
+    return (f"""✅ Conjunto creado exitosamente  
+
+    📁 Ruta: {output_dir}  
+    🖼️ Tamaño por clase: {set_size_value}  
+    🧠 Clases: {clases}""")

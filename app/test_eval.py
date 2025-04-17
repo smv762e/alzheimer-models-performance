@@ -47,7 +47,7 @@ def select_model_directory():
 # -------------------------------
 # 📌 Función principal
 # -------------------------------
-def test_eval():
+def test_eval_func():
     model_path = select_model_directory()
     images_set = select_images_directory()
     date_str = datetime.now().strftime("%Y-%m-%d_%H-%M")
@@ -106,4 +106,4 @@ def test_eval():
     sys.stdout = sys.__stdout__
 
 if __name__ == "__main__":
-    test_eval()
+    test_eval_func()

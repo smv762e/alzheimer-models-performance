@@ -25,7 +25,16 @@ def select_model_directory():
     return model_path
 
 # Función de predicción
-def predict(img):
+def multi_test_func(img):
+    model_path = select_model_directory()
+
+    # Cargar modelo
+    try:
+        model = load_model(model_path)
+    except Exception as e:
+        print(f"❌ Error loading model: {e}")
+        sys.exit()
+
     # Preprocesar la imagen como lo hacías en entrenamiento
     img = img.resize((IMG_SHAPE[0],IMG_SHAPE[1]))
     img_array = image.img_to_array(img)
@@ -43,18 +52,9 @@ def predict(img):
 # Cargar clases
 class_names = ['Mild Demented', 'Moderate Demented', 'Non Demented', 'Very Mild Demented']
 
-model_path = select_model_directory()
-
-# Cargar modelo
-try:
-    model = load_model(model_path)
-except Exception as e:
-    print(f"❌ Error loading model: {e}")
-    sys.exit()
-
 # Crear interfaz de Gradio
 interface = gr.Interface(
-    fn=predict,
+    fn=multi_test_func,
     inputs=gr.Image(sources="upload", type="pil"),
     outputs=gr.JSON(),
     title="🧠 Alzheimer Prediction",

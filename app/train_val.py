@@ -3,35 +3,13 @@ import os
 import sys
 from datetime import datetime
 import pandas as pd
-import tkinter as tk
-from tkinter.filedialog import askdirectory
-
-# Importar configuraciones
-from config import IMAGES_DIRECTORY, MODELS_DIRECTORY, NUM_EPOCHS
 
 # Importar módulos propios
 from src.data_utils import create_dataframes, split_data, create_image_generators
 from src.log_utils import Tee
 from src.model_utils import select_model_input, select_model, build_model, create_callbacks, plot_training_history
 
-# -------------------------------
-# 📌 Función para seleccionar directorio de imágenes
-# -------------------------------
-def select_images_directory():
-    tk.Tk().withdraw()  # Ocultar ventana principal de Tkinter
-    images_set = askdirectory(initialdir=IMAGES_DIRECTORY, title="Select an images set")
-    
-    if not images_set:
-        print("❌ No directory selected. Exiting...")
-        sys.exit()
-    
-    print(f"📂 Directory selected: {images_set}")
-    return images_set
-
-# -------------------------------
-# 📌 Función principal
-# -------------------------------
-def train_val():
+def train_val_func(images_set, mod, num_epochs, img_shape, exp_name):
     num = select_model_input()
     images_set = select_images_directory()
     date_str = datetime.now().strftime("%Y-%m-%d_%H-%M")
@@ -95,9 +73,3 @@ def train_val():
 
     finally:
         sys.stdout = sys.__stdout__  # Restaurar la salida estándar
-
-# -------------------------------
-# 📌 Punto de entrada del script
-# -------------------------------
-if __name__ == "__main__":
-    train_val()
