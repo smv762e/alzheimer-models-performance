@@ -43,23 +43,26 @@ train_val = gr.Interface(
 
 test_val = gr.Interface(
     fn=test_eval_func,
-    inputs=gr.Image(sources="upload", type="pil"),
-    outputs=gr.JSON(),
-    description="Model Testing",
+    inputs=[gr.FileExplorer(label="Select image folder", file_count="single", root_dir=IMAGES_DIRECTORY, ignore_glob=("*.txt")),
+            gr.FileExplorer(label="Select a trained model", file_count="single", root_dir=MODELS_DIRECTORY, glob=("*.keras"))],
+    outputs=[gr.TextArea(label="Results"),
+             gr.Image(label="Training Evolution", show_download_button=False)],
+    description="# Model Evaluation",
     flagging_mode="never"
 )
 
 multi_test = gr.Interface(
     fn=multi_test_func,
-    inputs=gr.Image(sources="upload", type="pil"),
+    inputs=[gr.Image(label= "Upload an image", sources="upload", type="pil"),
+            gr.FileExplorer(label="Select a trained model", file_count="single", root_dir=MODELS_DIRECTORY, glob=("*.keras"))],
     outputs=gr.JSON(),
-    description="Single Image Prediction",
+    description="# Single Image Prediction",
     flagging_mode="never"
 )
 
 app = gr.TabbedInterface(
     [info_tab, batch_creator, train_val, test_val, multi_test],
-    ["Introduction", "Batch Creator", "Training and Validation", "Model Test", "Single Predictions"],
+    ["Introduction", "Batch Creator", "Training and Validation", "Model Evaluation", "Single Predictions"],
     title="🧠 Alzheimer Prediction App"
 )
 

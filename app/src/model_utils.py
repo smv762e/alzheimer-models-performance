@@ -90,6 +90,7 @@ def confusion(test, y_test, pred2, model_name, plot_save_directory):
     plt.xlabel("Predicted")
     plt.ylabel("Actual")
     plt.title("Confusion Matrix: " + model_name)
+    
     image_path = os.path.join(plot_save_directory, f'{model_name}_confusion.png')
     plt.savefig(image_path)
     plt.close

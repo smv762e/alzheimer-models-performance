@@ -78,6 +78,7 @@ def train_val_func(images_set, mod, num_epochs):
                 f"{data_df['classes'].value_counts().to_string()}\n"
                 f"🎯 Test Accuracy: {test_acc * 100:.2f}%"
             )
+            
     except Exception as e:
         print(f"❌ Error during execution: {e}")
 
