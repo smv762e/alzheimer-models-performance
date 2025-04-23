@@ -10,10 +10,10 @@ import seaborn as sns
 from sklearn.metrics import confusion_matrix
 import numpy as np
 
-# Importar configuraciones
+# Import configurations
 from config import IMG_SHAPE
 
-# Modelos disponibles
+# Available models
 MODEL_DICT = {
     "Inception": InceptionV3,
     "ResNet50": ResNet50,
@@ -75,7 +75,7 @@ def plot_training_history(history, model_name, plot_save_directory):
     plt.tight_layout()
     image_path = os.path.join(plot_save_directory, f'{model_name}_training_history.png')
     plt.savefig(image_path)
-    plt.close
+    plt.close()
     
     return image_path
 
@@ -93,6 +93,6 @@ def confusion(test, y_test, pred2, model_name, plot_save_directory):
     
     image_path = os.path.join(plot_save_directory, f'{model_name}_confusion.png')
     plt.savefig(image_path)
-    plt.close
+    plt.close()
 
     return image_path

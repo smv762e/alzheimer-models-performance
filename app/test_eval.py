@@ -67,7 +67,7 @@ def test_eval_func(images_set, mod):
             print("\n📜 Classification Report:")
             print(classification_report(y_test, pred_labels))
 
-            print("\n🎯 Accuracy of the Model:", "{:.1f}%".format(accuracy_score(y_test, pred_labels) * 100))
+            print("\n🎯 Accuracy of the Model:", "{:.2f}%".format(accuracy_score(y_test, pred_labels) * 100))
 
             final_msg = (
                 "✅ Training and validation completed.\n"
