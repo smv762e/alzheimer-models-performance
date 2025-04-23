@@ -70,10 +70,10 @@ def test_eval_func(images_set, mod):
             print("\n🎯 Accuracy of the Model:", "{:.2f}%".format(accuracy_score(y_test, pred_labels) * 100))
 
             final_msg = (
-                "✅ Training and validation completed.\n"
-                "📊 Labels Distribution:\n"
+                f"✅ Testing evaluation completed.\n"
+                f"📊 Labels Distribution:\n"
                 f"{test_df['classes'].value_counts().to_string()}\n"
-                "📜 Classification Report:\n"
+                f"📜 Classification Report:\n"
                 f"{classification_report(y_test, pred_labels)}\n"
                 f"🎯 Test Accuracy: {test_acc * 100:.2f}%"
             )

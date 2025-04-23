@@ -8,6 +8,8 @@ from tensorflow.keras.preprocessing import image
 from config import IMG_SHAPE, CLASS_NAMES
 
 def multi_test_func(single_image, mod):
+    final_msg = "⚠️ An error occurred during prediction."
+
     # Load the model
     try:
         model = load_model(mod)
@@ -27,8 +29,12 @@ def multi_test_func(single_image, mod):
     pred_class = CLASS_NAMES[pred_index]
     confidence = float(preds[pred_index])
 
-    return {
-        "Predicted Class": pred_class,
-        "Confidence": confidence,
-        **{label: float(p) for label, p in zip(CLASS_NAMES, preds)}
-    }
+    final_msg = (
+        f"✅ Prediction completed.\n"
+        f"🧠 Predicted Class: {pred_class}\n"
+        f"📈 Confidence: {confidence:.5f}\n"
+        f"📊 All Class Probabilities:\n" +
+        "\n".join([f"- {label}: {float(prob):.5f}" for label, prob in zip(CLASS_NAMES, preds)])
+    )
+    
+    return final_msg

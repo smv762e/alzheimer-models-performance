@@ -5,6 +5,8 @@ import random
 import gradio as gr
 
 def batch_creator_func(images_set, set_name, set_size):
+    final_msg = "⚠️ An error occurred during set creation."
+
     # Validaciones básicas
     if not images_set or not os.path.isdir(images_set):
         raise gr.Error("❌ Directorio no válido")
@@ -54,8 +56,11 @@ def batch_creator_func(images_set, set_name, set_size):
 
     clases = ", ".join(class_images.keys())
 
-    return (f"""✅ Conjunto creado exitosamente  
+    final_msg = (
+        f"✅ Set created successfully.\n"
+        f"📁 Path: {output_dir}\n"
+        f"🖼️ Size per class: {set_size_value}\n"
+        f"🧠 Classes: {clases}"
+    )
 
-    📁 Ruta: {output_dir}  
-    🖼️ Tamaño por clase: {set_size_value}  
-    🧠 Clases: {clases}""")
+    return final_msg

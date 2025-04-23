@@ -36,6 +36,7 @@ train_val = gr.Interface(
                       "ResNet152V2", "VGG16", "VGG19", "Xception"], label="Select a model to train"),
             gr.Number(label="Number of training iterations", minimum=0, key=int)],
     outputs=[gr.TextArea(label="Results"),
+             gr.Dataframe(label="Training History", headers=("loss", "accuracy", "val_loss", "val_accuracy", "lr")),
              gr.Image(label="Training Evolution", show_download_button=False)],
     description="# Model Training and Validation",
     flagging_mode="never"
@@ -55,7 +56,7 @@ multi_test = gr.Interface(
     fn=multi_test_func,
     inputs=[gr.Image(label= "Upload an image", sources="upload", type="pil"),
             gr.FileExplorer(label="Select a trained model", file_count="single", root_dir=MODELS_DIRECTORY, glob=("*.keras"))],
-    outputs=gr.JSON(),
+    outputs=gr.TextArea(label="Results"),
     description="# Single Image Prediction",
     flagging_mode="never"
 )

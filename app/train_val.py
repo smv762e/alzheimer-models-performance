@@ -5,7 +5,7 @@ from datetime import datetime
 import pandas as pd
 
 # Import custom modules
-from src.data_utils import create_dataframes, split_data, create_image_generators
+from src.data_utils import create_dataframes, split_data, save_test_images,create_image_generators
 from src.log_utils import Tee
 from src.model_utils import select_model_by_name, build_model, create_callbacks, plot_training_history
 
@@ -26,11 +26,12 @@ def train_val_func(images_set, mod, num_epochs):
         # Split into train, validation, and test
         train_df, val_df, test_df = split_data(data_df)
 
+        save_test_images(test_df)
+
         # Create image generators
         train_gen = create_image_generators(train_df)
         print(train_gen.class_indices)
         val_gen = create_image_generators(val_df)
-        test_gen = create_image_generators(test_df)
 
         # Build model
         model_fn, model_name = select_model_by_name(mod)
@@ -63,20 +64,16 @@ def train_val_func(images_set, mod, num_epochs):
             # Save training history
             history_df = pd.DataFrame(history.history)
             history_df.to_csv(os.path.join(model_directory, 'training_history.csv'), index=False)
+            history_df['lr'] = history_df['lr'].apply(lambda x: f"{x:.5f}")
+            history_df = history_df.round({'loss':5, 'accuracy':5, 'val_loss':5, 'val_accuracy':5})
 
             # Plot training history
             image_path = plot_training_history(history, model_name, model_directory)
 
-            # Final model evaluation
-            print("🔍 Evaluating model on test data...")
-            _, test_acc = model.evaluate(test_gen, verbose=1)
-            print(f"🎯 Test Accuracy: {test_acc * 100:.2f}%")
-
             final_msg = (
-                "✅ Training and validation completed.\n"
-                "📊 Labels Distribution:\n"
+                f"✅ Training and validation completed.\n"
+                f"📊 Labels Distribution:\n"
                 f"{data_df['classes'].value_counts().to_string()}\n"
-                f"🎯 Test Accuracy: {test_acc * 100:.2f}%"
             )
             
     except Exception as e:
@@ -84,4 +81,4 @@ def train_val_func(images_set, mod, num_epochs):
 
     finally:
         sys.stdout = sys.__stdout__
-        return final_msg, image_path
+        return final_msg, history_df, image_path
