@@ -30,7 +30,8 @@ batch_creator = gr.Interface(
 
 train_val = gr.Interface(
     fn=train_val_func,
-    inputs=[gr.FileExplorer(label="Select image folder", file_count="single", root_dir=IMAGES_DIRECTORY, ignore_glob=("*.txt")),
+    inputs=[gr.FileExplorer(label="Select image training folder", file_count="single", root_dir=IMAGES_DIRECTORY, glob=("*.csv")),
+            gr.FileExplorer(label="Select image validation folder", file_count="single", root_dir=IMAGES_DIRECTORY, glob=("*.csv")),
             gr.Radio(["Inception", "ResNet50", "ResNet50V2",
                       "ResNet101", "ResNet101V2", "ResNet152",
                       "ResNet152V2", "VGG16", "VGG19", "Xception"], label="Select a model to train"),
@@ -44,7 +45,7 @@ train_val = gr.Interface(
 
 test_val = gr.Interface(
     fn=test_eval_func,
-    inputs=[gr.FileExplorer(label="Select image folder", file_count="single", root_dir=IMAGES_DIRECTORY, ignore_glob=("*.txt")),
+    inputs=[gr.FileExplorer(label="Select image testing folder", file_count="single", root_dir=IMAGES_DIRECTORY, glob=("*.csv")),
             gr.FileExplorer(label="Select a trained model", file_count="single", root_dir=MODELS_DIRECTORY, glob=("*.keras"))],
     outputs=[gr.TextArea(label="Results"),
              gr.Image(label="Training Evolution", show_download_button=False)],

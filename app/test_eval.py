@@ -3,6 +3,8 @@ import os
 import sys
 import numpy as np
 from datetime import datetime
+import pandas as pd
+import gradio as gr
 from tensorflow.keras.models import load_model
 from sklearn.metrics import classification_report, accuracy_score
 
@@ -14,23 +16,26 @@ from src.model_utils import confusion
 # Import configurations
 from config import MODELS_DIRECTORY
 
-def test_eval_func(images_set, mod):
-    final_msg = "⚠️ An error occurred during training."
+def test_eval_func(test_set, mod):
+    final_msg = "⚠️ An error occurred during testing."
     image_path = None
 
     try:
         date_str = datetime.now().strftime("%Y-%m-%d_%H-%M")
         
-        # Create dataframe
-        test_df = create_dataframes(images_set)
+        # Read Test .csv -> Dataframe
+        test_df = pd.read_csv(test_set)
+
+        if test_df.empty:
+            raise gr.Error("❌ Test set is empty.")
+
         test_gen = create_image_generators(test_df)
 
         # Load model
         try:
             model = load_model(mod)
         except Exception as e:
-            print(f"❌ Error loading model: {e}")
-            sys.exit()
+            raise gr.Error(f"❌ Error loading model: {e}")
 
         # Create test directory
         model_name = os.path.splitext(os.path.basename(mod))[0]
@@ -81,9 +86,11 @@ def test_eval_func(images_set, mod):
             # Generate confusion matrix
             image_path = confusion(test_gen, y_test, pred_labels, model_name, test_directory)
 
+    except gr.Error as ge:
+        raise ge
     except Exception as e:
         print(f"❌ Error during execution: {e}")
-
+        raise gr.Error(f"❌ Unexpected error: {str(e)}")
     finally:
         sys.stdout = sys.__stdout__
         return final_msg, image_path

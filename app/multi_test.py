@@ -32,9 +32,9 @@ def multi_test_func(single_image, mod):
     final_msg = (
         f"✅ Prediction completed.\n"
         f"🧠 Predicted Class: {pred_class}\n"
-        f"📈 Confidence: {confidence:.5f}\n"
+        f"📈 Confidence: {confidence * 100:.2f}%\n"
         f"📊 All Class Probabilities:\n" +
-        "\n".join([f"- {label}: {float(prob):.5f}" for label, prob in zip(CLASS_NAMES, preds)])
+        "\n".join([f"- {label}: {float(prob) * 100:.2f}%" for label, prob in zip(CLASS_NAMES, preds)])
     )
     
     return final_msg
