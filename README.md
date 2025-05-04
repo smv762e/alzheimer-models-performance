@@ -18,7 +18,7 @@ Provides a general welcome message and overview of the application’s purpose.
 
 ### 🏗️ 2. Batch Creator
 
-Creates a new dataset from a folder of Alzheimer-classified images.
+Creates a new dataset (Train, Val & Test) from a folder of Alzheimer-classified images.
 
 **Inputs:**
 - 📁 Select image folder (via `FileExplorer`)
@@ -26,7 +26,8 @@ Creates a new dataset from a folder of Alzheimer-classified images.
 - 🔢 Number of images per class
 
 **Outputs:**
-- Text summary of dataset creation
+- 📄 Text summary of dataset creation
+- 📋 train_df.csv, val_df.csv & test_df.csv
 
 ---
 
@@ -40,7 +41,7 @@ Trains a deep learning model using selected images and tracks performance.
 - 🔁 Number of training epochs
 
 **Outputs:**
-- 📄 Training summary
+- 📄 Training & Validation summary
 - 📊 Training history as a table (loss, accuracy, etc.)
 - 🖼️ Accuracy/Loss curve as an image
 

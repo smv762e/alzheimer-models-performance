@@ -9,14 +9,16 @@ from train_val import train_val_func
 from test_eval import test_eval_func
 from multi_test import multi_test_func
 
-info_tab = gr.Interface(
-    fn=lambda: "🧠 Welcome to the Alzheimer prediction app.\n\nUse the tabs to create datasets, train models, and make predictions.",
-    inputs=[],
-    outputs=gr.Markdown(),
-    description="# General Information",
-    flagging_mode="never",
-    clear_btn=None
-)
+# Load README.md
+def load_readme():
+    try:
+        with open("README.md", "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception as e:
+        raise gr.Error(f"❌ Failed to load README.md: {e}")
+
+with gr.Blocks() as info_tab:
+    gr.Markdown(load_readme())
 
 batch_creator = gr.Interface(
     fn=batch_creator_func,
