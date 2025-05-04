@@ -48,10 +48,25 @@ def build_model(model_fn, num_classes):
 
 def create_callbacks(model_name, model_directory):
     checkpoint_filepath = os.path.join(model_directory, f'{model_name}.keras')
-    model_checkpoint_callback = ModelCheckpoint(filepath=checkpoint_filepath, monitor='val_accuracy',
-                                                verbose=1, mode='max', save_best_only=True)
-    training_stop = EarlyStopping(monitor='loss', verbose=1, patience=10)
-    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, verbose=1, mode='min', min_lr=0.0001)
+
+    model_checkpoint_callback = ModelCheckpoint(
+        filepath=checkpoint_filepath,
+        monitor='val_accuracy',
+        verbose=1,
+        mode='max',
+        save_best_only=True)
+    
+    training_stop = EarlyStopping(monitor='val_loss',
+                                  verbose=1, patience=10,
+                                  restore_best_weights=True)
+    
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss',
+                                  factor=0.1,
+                                  patience=5,
+                                  verbose=1,
+                                  mode='min',
+                                  min_lr=1e-5)
+    
     return [model_checkpoint_callback, training_stop, reduce_lr]
 
 def plot_training_history(history, model_name, plot_save_directory):
