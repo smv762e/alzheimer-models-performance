@@ -34,8 +34,10 @@ def select_model_by_name(name):
 def build_model(model_fn, num_classes):
     if model_fn in (VGG16, VGG19):
         autoPooling = 'max'
+        print("Pooling: max")
     else:
         autoPooling = 'avg'
+        print("Pooling: avg")
 
     base_model = model_fn(include_top=False, weights="imagenet", input_shape=IMG_SHAPE, pooling=autoPooling)
     x = base_model.output
