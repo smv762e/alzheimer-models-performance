@@ -6,7 +6,7 @@ import pandas as pd
 import gradio as gr
 
 # Import custom modules
-from src.data_utils import create_dataframes, create_image_generators
+from src.data_utils import create_image_generators
 from src.log_utils import Tee
 from src.model_utils import select_model_by_name, build_model, create_callbacks, plot_training_history
 

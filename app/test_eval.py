@@ -9,7 +9,7 @@ from tensorflow.keras.models import load_model
 from sklearn.metrics import classification_report, accuracy_score
 
 # Import custom modules
-from src.data_utils import create_dataframes, create_image_generators
+from src.data_utils import create_image_generators
 from src.log_utils import Tee
 from src.model_utils import confusion
 
